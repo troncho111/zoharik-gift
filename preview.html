@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;700;900&family=Suez+One&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px;
+    background: linear-gradient(135deg, #F5EFE5 0%, #FFFBF4 100%);
+    font-family: 'Heebo', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .confetti { position: absolute; border-radius: 50%; }
+  .c1 { background: #D85F3F; width: 14px; height: 14px; top: 80px; left: 100px; }
+  .c2 { background: #C9974A; width: 12px; height: 12px; top: 150px; left: 280px; }
+  .c3 { background: #4D7A72; width: 16px; height: 16px; top: 480px; left: 180px; }
+  .c4 { background: #FF4F8B; width: 10px; height: 10px; top: 540px; left: 380px; }
+  .c5 { background: #C9974A; width: 14px; height: 14px; top: 100px; right: 220px; }
+  .c6 { background: #4D7A72; width: 12px; height: 12px; top: 510px; right: 180px; }
+  .c7 { background: #D85F3F; width: 10px; height: 10px; top: 60px; right: 380px; }
+  .c8 { background: #FF4F8B; width: 14px; height: 14px; bottom: 90px; right: 480px; }
+  .container { display: flex; align-items: center; gap: 50px; padding: 0 80px; z-index: 1; }
+  .left { text-align: right; flex: 1; }
+  .stamp {
+    display: inline-block; background: #FCDDCF; color: #D85F3F;
+    padding: 7px 16px; border-radius: 100px; font-size: 15px;
+    font-weight: 600; margin-bottom: 22px; letter-spacing: 0.5px;
+  }
+  h1 {
+    font-family: 'Suez One', serif; font-size: 72px;
+    color: #1F1A15; line-height: 1.05; margin-bottom: 18px;
+  }
+  .sub {
+    font-family: 'Frank Ruhl Libre', serif; font-size: 32px;
+    color: #D85F3F; font-style: italic; margin-bottom: 26px;
+  }
+  .amount {
+    display: inline-block;
+    background: linear-gradient(135deg, #F5E6CA, #FFF1D6);
+    border: 2px solid #C9974A; border-radius: 18px;
+    padding: 14px 28px; font-family: 'Frank Ruhl Libre', serif;
+    font-weight: 900; font-size: 28px; color: #1F1A15;
+  }
+  .right { font-size: 280px; line-height: 1;
+    filter: drop-shadow(0 12px 30px rgba(216, 95, 63, 0.3)); }
+</style>
+</head>
+<body>
+  <div class="confetti c1"></div><div class="confetti c2"></div>
+  <div class="confetti c3"></div><div class="confetti c4"></div>
+  <div class="confetti c5"></div><div class="confetti c6"></div>
+  <div class="confetti c7"></div><div class="confetti c8"></div>
+  <div class="container">
+    <div class="left">
+      <div class="stamp">✦ מאת יהודה מזרחי</div>
+      <h1>לזוהריקו<br>ואורטלי</h1>
+      <div class="sub">החמודים שלי 😇</div>
+      <div class="amount">₪ 1,000 במתנה</div>
+    </div>
+    <div class="right">🎁</div>
+  </div>
+</body>
+</html>
