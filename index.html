@@ -495,6 +495,46 @@ body::before {
 .arrow-link span:last-child { transition: transform 0.3s; display: inline-block; }
 .option-card:hover .arrow-link span:last-child { transform: translateX(-4px); }
 
+.site-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--warm-white);
+  color: var(--text-soft);
+  text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+
+.site-link:hover {
+  background: var(--text);
+  color: white;
+  border-color: var(--text);
+  transform: translateY(-1px);
+}
+
+.site-link .ext-icon {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.option-card.htz .site-link:hover { background: var(--teal); border-color: var(--teal); }
+.option-card.buyme .site-link:hover { background: #C73268; border-color: #C73268; }
+
 .divider {
   text-align: center;
   color: var(--text-soft);
@@ -839,6 +879,12 @@ body::before {
               <span>ראו פרטים</span>
               <span>←</span>
             </div>
+            <div class="site-links">
+              <a class="site-link" href="https://www.htzone.co.il/" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                <span>לאתר HTZone</span>
+                <span class="ext-icon">↗</span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -853,6 +899,12 @@ body::before {
             <div class="arrow-link">
               <span>ראו פרטים</span>
               <span>←</span>
+            </div>
+            <div class="site-links">
+              <a class="site-link" href="https://buyme.co.il/" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                <span>לאתר BuyMe</span>
+                <span class="ext-icon">↗</span>
+              </a>
             </div>
           </div>
         </div>
@@ -870,6 +922,16 @@ body::before {
             <div class="arrow-link">
               <span>ראו פרטים</span>
               <span>←</span>
+            </div>
+            <div class="site-links">
+              <a class="site-link" href="https://www.htzone.co.il/" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                <span>HTZone</span>
+                <span class="ext-icon">↗</span>
+              </a>
+              <a class="site-link" href="https://buyme.co.il/" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                <span>BuyMe</span>
+                <span class="ext-icon">↗</span>
+              </a>
             </div>
           </div>
         </div>
