@@ -248,11 +248,60 @@ body::before {
   border-radius: 18px;
   padding: 14px 28px;
   margin-top: 22px;
-  margin-bottom: 32px;
+  margin-bottom: 8px;
   position: relative;
+  overflow: hidden;
   box-shadow: 0 10px 24px rgba(201, 151, 74, 0.18);
   animation: stampIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s both;
   transform-origin: center;
+  min-width: 160px;
+}
+
+.scratch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 16px;
+  transition: opacity 0.6s ease;
+  z-index: 5;
+}
+.scratch-canvas:active { cursor: grabbing; }
+.scratch-canvas.revealed { opacity: 0; pointer-events: none; }
+
+.scratch-hint {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 24px;
+  letter-spacing: 0.3px;
+  animation: hintBounce 1.8s ease-in-out infinite, slideUp 0.6s ease 1.4s both;
+}
+
+.scratch-hint.hide {
+  animation: fadeOut 0.4s forwards;
+}
+
+@keyframes hintBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-6px); pointer-events: none; height: 0; margin: 0; }
+}
+
+.amount-badge.revealed {
+  animation: stampIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s both, badgeShine 1.2s ease 0.2s;
+}
+
+@keyframes badgeShine {
+  0% { box-shadow: 0 10px 24px rgba(201, 151, 74, 0.18), 0 0 0 0 rgba(201, 151, 74, 0.55); }
+  50% { box-shadow: 0 10px 24px rgba(201, 151, 74, 0.4), 0 0 0 18px rgba(201, 151, 74, 0); }
+  100% { box-shadow: 0 10px 24px rgba(201, 151, 74, 0.18), 0 0 0 0 rgba(201, 151, 74, 0); }
 }
 
 @keyframes stampIn {
@@ -843,10 +892,12 @@ body::before {
         <span class="hearts">החמודים שלי 😇</span>
       </h1>
 
-      <div class="amount-badge">
+      <div class="amount-badge" id="amountBadge">
         <span class="label">סך הכל</span>
         <span class="currency">₪</span><span class="amount">1,000</span>
+        <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
       </div>
+      <div class="scratch-hint" id="scratchHint">🪙 גרדו את הקובייה לגלות את הסכום</div>
 
       <div class="message-box">
         <p><span class="legend">יהודה מזרחי — האיש והאגדה</span> בחר לתת לכם מתנה בצורה קצת מיוחדת.</p>
@@ -1146,8 +1197,118 @@ document.getElementById('easterEgg').addEventListener('click', (e) => {
 
 document.getElementById('backBtn').addEventListener('click', goBack);
 
+function initScratchCard() {
+  const canvas = document.getElementById('scratchCanvas');
+  const badge = document.getElementById('amountBadge');
+  const hint = document.getElementById('scratchHint');
+  if (!canvas || !badge) return;
+
+  const rect = badge.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+  gradient.addColorStop(0, '#B8B8B8');
+  gradient.addColorStop(0.3, '#E8E8E8');
+  gradient.addColorStop(0.5, '#F5F5F5');
+  gradient.addColorStop(0.7, '#D0D0D0');
+  gradient.addColorStop(1, '#9A9A9A');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, rect.width, rect.height);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  for (let i = 0; i < 30; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * rect.width, Math.random() * rect.height, Math.random() * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.font = 'bold 22px Heebo, sans-serif';
+  ctx.fillStyle = 'rgba(80, 80, 80, 0.7)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🪙 גרדו', rect.width / 2, rect.height / 2);
+
+  let drawing = false;
+  let revealed = false;
+  let checkScheduled = false;
+  let firstScratchDone = false;
+
+  const getPos = (e) => {
+    const r = canvas.getBoundingClientRect();
+    const point = e.touches ? e.touches[0] : e;
+    return {
+      x: (point.clientX - r.left) * (rect.width / r.width),
+      y: (point.clientY - r.top) * (rect.height / r.height)
+    };
+  };
+
+  const scratchAt = (pos) => {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 24, 0, Math.PI * 2);
+    ctx.fill();
+    scheduleCheck();
+  };
+
+  const scheduleCheck = () => {
+    if (checkScheduled || revealed) return;
+    checkScheduled = true;
+    setTimeout(() => {
+      checkScheduled = false;
+      if (revealed) return;
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let cleared = 0;
+      const step = 16;
+      let total = 0;
+      for (let i = 3; i < img.data.length; i += step) {
+        total++;
+        if (img.data[i] === 0) cleared++;
+      }
+      const pct = cleared / total;
+      if (pct >= 0.4) {
+        revealed = true;
+        canvas.classList.add('revealed');
+        badge.classList.add('revealed');
+        if (hint) hint.classList.add('hide');
+        if (typeof confetti !== 'undefined') {
+          confetti({ particleCount: 90, spread: 75, startVelocity: 35, origin: { y: 0.4 }, colors: ['#C9974A', '#F5E6CA', '#D85F3F', '#FCDDCF', '#FFD700'] });
+        }
+        setTimeout(() => canvas.remove(), 700);
+      }
+    }, 180);
+  };
+
+  const handleStart = (e) => {
+    drawing = true;
+    e.preventDefault();
+    if (!firstScratchDone && hint) {
+      hint.style.animation = 'fadeOut 0.5s forwards';
+      firstScratchDone = true;
+    }
+    scratchAt(getPos(e));
+  };
+  const handleMove = (e) => {
+    if (!drawing) return;
+    e.preventDefault();
+    scratchAt(getPos(e));
+  };
+  const handleEnd = () => { drawing = false; };
+
+  canvas.addEventListener('mousedown', handleStart);
+  canvas.addEventListener('mousemove', handleMove);
+  document.addEventListener('mouseup', handleEnd);
+  canvas.addEventListener('touchstart', handleStart, { passive: false });
+  canvas.addEventListener('touchmove', handleMove, { passive: false });
+  document.addEventListener('touchend', handleEnd);
+}
+
 window.addEventListener('load', () => {
   setTimeout(() => fireConfetti('open'), 300);
+  setTimeout(initScratchCard, 1500);
 });
 </script>
 </body>
