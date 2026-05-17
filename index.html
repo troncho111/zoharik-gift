@@ -267,6 +267,17 @@ body::before {
   border-radius: 16px;
   transition: opacity 0.6s ease;
   z-index: 5;
+  background: linear-gradient(135deg, #B8B8B8 0%, #E8E8E8 30%, #F5F5F5 50%, #D0D0D0 70%, #9A9A9A 100%);
+}
+.amount-badge .label,
+.amount-badge .currency,
+.amount-badge .amount {
+  visibility: hidden;
+}
+.amount-badge.ready .label,
+.amount-badge.ready .currency,
+.amount-badge.ready .amount {
+  visibility: visible;
 }
 .scratch-canvas:active { cursor: grabbing; }
 .scratch-canvas.revealed { opacity: 0; pointer-events: none; }
@@ -1203,12 +1214,21 @@ function initScratchCard() {
   const hint = document.getElementById('scratchHint');
   if (!canvas || !badge) return;
 
-  const rect = badge.getBoundingClientRect();
+  // offsetWidth/Height ignore transform (badge starts at scale(1.5) due to stampIn)
+  const w = badge.offsetWidth;
+  const h = badge.offsetHeight;
+  if (w === 0 || h === 0) {
+    requestAnimationFrame(initScratchCard);
+    return;
+  }
+
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
+
+  const rect = { width: w, height: h };
 
   const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
   gradient.addColorStop(0, '#B8B8B8');
@@ -1231,6 +1251,9 @@ function initScratchCard() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('🪙 גרדו', rect.width / 2, rect.height / 2);
+
+  // Canvas is now fully drawn — reveal the underlying content (still hidden behind canvas)
+  badge.classList.add('ready');
 
   let drawing = false;
   let revealed = false;
@@ -1306,9 +1329,22 @@ function initScratchCard() {
   document.addEventListener('touchend', handleEnd);
 }
 
+// Init scratch canvas as early as possible — before the badge stampIn animation
+// starts at 0.9s — so the user never sees a flash of the amount.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(initScratchCard));
+} else {
+  requestAnimationFrame(initScratchCard);
+}
+
+// Safety: if scratch init fails for any reason, still reveal the amount after 3s
+setTimeout(() => {
+  const b = document.getElementById('amountBadge');
+  if (b && !b.classList.contains('ready')) b.classList.add('ready');
+}, 3000);
+
 window.addEventListener('load', () => {
   setTimeout(() => fireConfetti('open'), 300);
-  setTimeout(initScratchCard, 1500);
 });
 </script>
 </body>
