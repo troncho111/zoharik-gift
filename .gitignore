@@ -3,3 +3,13 @@ package-lock.json
 package.json
 qa-screenshots/
 qa-screenshot.js
+# night-ops 2026-07-30: generated dashboard and QA screenshots
+docs/home.html
+qa-choices-mobile.png
+qa-e2e-01-welcome.png
+qa-e2e-02-step2-choices.png
+qa-live-desktop.png
+qa-live-mobile.png
+qa-noflash-*.png
+qa-scratch-01-covered.png
+qa-scratch-02-revealed.png
